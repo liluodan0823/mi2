@@ -1,260 +1,305 @@
-//以下是动画的算法
-var zhufengEffect = {
-	//当前时间*变化量/持续时间+初始值
-	zfLinear: function(t,b,c,d){ return c*t/d + b; },
-	Quad: {//二次方的缓动（t^2）；
-		easeIn: function(t,b,c,d){
-			return c*(t/=d)*t + b;
-		},
-		easeOut: function(t,b,c,d){
-			return -c *(t/=d)*(t-2) + b;
-		},
-		easeInOut: function(t,b,c,d){
-			if ((t/=d/2) < 1) return c/2*t*t + b;
-			return -c/2 * ((--t)*(t-2) - 1) + b;
-		}
-	},
-	Cubic: {//三次方的缓动（t^3）
-		easeIn: function(t,b,c,d){
-			return c*(t/=d)*t*t + b;
-		},
-		easeOut: function(t,b,c,d){
-			return c*((t=t/d-1)*t*t + 1) + b;
-		},
-		easeInOut: function(t,b,c,d){
-			if ((t/=d/2) < 1) return c/2*t*t*t + b;
-			return c/2*((t-=2)*t*t + 2) + b;
-		}
-	},
-	Quart: {//四次方的缓动（t^4）；
-		easeIn: function(t,b,c,d){
-			return c*(t/=d)*t*t*t + b;
-		},
-		easeOut: function(t,b,c,d){
-			return -c * ((t=t/d-1)*t*t*t - 1) + b;
-		},
-		easeInOut: function(t,b,c,d){
-			if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
-			return -c/2 * ((t-=2)*t*t*t - 2) + b;
-		}
-	},
-	Quint: {//5次方的缓动（t^5）；
-		easeIn: function(t,b,c,d){
-			return c*(t/=d)*t*t*t*t + b;
-		},
-		easeOut: function(t,b,c,d){
-			return c*((t=t/d-1)*t*t*t*t + 1) + b;
-		},
-		easeInOut: function(t,b,c,d){
-			if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
-			return c/2*((t-=2)*t*t*t*t + 2) + b;
-		}
-	},
-	Sine: {//正弦曲线的缓动（sin(t)）
-		easeIn: function(t,b,c,d){
-			return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
-		},
-		easeOut: function(t,b,c,d){
-			return c * Math.sin(t/d * (Math.PI/2)) + b;
-		},
-		easeInOut: function(t,b,c,d){
-			return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
-		}
-	},
-	Expo: {//指数曲线的缓动（2^t）；
-		easeIn: function(t,b,c,d){
-			return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
-		},
-		easeOut: function(t,b,c,d){
-			return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
-		},
-		easeInOut: function(t,b,c,d){
-			if (t==0) return b;
-			if (t==d) return b+c;
-			if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
-			return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
-		}
-	},
-	Circ: {//圆形曲线的缓动（sqrt(1-t^2)）；
-		easeIn: function(t,b,c,d){
-			return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b;
-		},
-		easeOut: function(t,b,c,d){
-			return c * Math.sqrt(1 - (t=t/d-1)*t) + b;
-		},
-		easeInOut: function(t,b,c,d){
-			if ((t/=d/2) < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
-			return c/2 * (Math.sqrt(1 - (t-=2)*t) + 1) + b;
-		}
-	},
-	Elastic: {//指数衰减的正弦曲线缓动；
-		easeIn: function(t,b,c,d,a,p){
-			if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
-			if (!a || a < Math.abs(c)) { a=c; var s=p/4; }
-			else var s = p/(2*Math.PI) * Math.asin (c/a);
-			return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
-		},
-		easeOut: function(t,b,c,d,a,p){
-			if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
-			if (!a || a < Math.abs(c)) { a=c; var s=p/4; }
-			else var s = p/(2*Math.PI) * Math.asin (c/a);
-			return (a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b);
-		},
-		easeInOut: function(t,b,c,d,a,p){
-			if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5);
-			if (!a || a < Math.abs(c)) { a=c; var s=p/4; }
-			else var s = p/(2*Math.PI) * Math.asin (c/a);
-			if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
-			return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;
-		}
-	},
-	Back: {//超过范围的三次方缓动（(s+1)*t^3 - s*t^2）；
-		easeIn: function(t,b,c,d,s){
-			if (s == undefined) s = 1.70158;
-			return c*(t/=d)*t*((s+1)*t - s) + b;
-		},
-		easeOut: function(t,b,c,d,s){
-			if (s == undefined) s = 1.70158;
-			return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
-		},
-		easeInOut: function(t,b,c,d,s){
-			if (s == undefined) s = 1.70158; 
-			if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
-			return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
-		}
-	},
-	zfBounce: {//指数衰减的反弹缓动。
-		easeIn: function(t,b,c,d){
-			return c - zhufengEffect.zfBounce.easeOut(d-t, 0, c, d) + b;
-		},
-		easeOut: function(t,b,c,d){
-			if ((t/=d) < (1/2.75)) {
-				return c*(7.5625*t*t) + b;
-			} else if (t < (2/2.75)) {
-				return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
-			} else if (t < (2.5/2.75)) {
-				return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
-			} else {
-				return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
-			}
-		},
-		easeInOut: function(t,b,c,d){
-			if (t < d/2) return zhufengEffect.zfBounce.easeIn(t*2, 0, c, d) * .5 + b;
-			else return zhufengEffect.zfBounce.easeOut(t*2-d, 0, c, d) * .5 + c*.5 + b;
-		}
-	}
-}
-
-//以上是算法
 /*
-	0：减速；1：直线动画，2：back，3：elastic;4:bounce
-	以减速效果为默认效果
-*/
-/*
-	animate方法可以传三个参数
-	可以传四个参数，第四个参数可以是指定的动画类型，也可以是回调方法
-	可以传五个参数，第四是动画类型，第五个是回调方法
-*/
-function animate(ele,obj,duration,effect,callback){
-	
-	var fnEffect=zhufengEffect.Expo.easeOut;//默认以这个为效果
-	
-	//如果用户指定的其它效果，再依指定的数字或其它值来修改
-	if(typeof effect == "number"){
-		switch(effect){
-			case 0:
-				break;	
-			case 1:
-				fnEffect=zhufengEffect.zfLinear;
-				break;
-			case 2:
-				fnEffect=zhufengEffect.Back.easeOut;
-				break;
-			case 3:
-				fnEffect=zhufengEffect.Elastic.easeOut;
-				break;
-			case 4:
-				fnEffect=zhufengEffect.zfBounce.easeOut;
-			
-		}
-	}else if(typeof effect == "function"){
-		callback=effect;//如果这个effect参数传进来的是function，则把它看当成回调函数
-	}
-	
-	
-	var oChange={}
-	var oBegin={};
-	
-	var flag=0;//用来记录有多少个有效change的记数器
-	for(var attr in obj){
-		var target=obj[attr];
-		var begin=animate.getCss(ele,attr);
-		var change=target-begin;//现在的change不止于一个方向
-		
-		if(change){//如果起点和终点不等（有效值），则把有效值保存
-			oBegin[attr]=begin;//分别把每个方向的起点保存在oBegin对象上
-			oChange[attr]=change;//分别把每个方向的change保存在这个对象上
-			flag++;
-		}
-	}
-	if(flag===0){
-		return ;	
-	}
-	
-	var times=0;//记录当前消耗的时间
-	var interval=15;//每步动画的时间间隔
-	
-	clearInterval(ele.timer);//防止动画积累
-	
-	function step(){
-		times+=interval;
-		if(times<duration){
-			for(var attr in oChange){
-				
-				var change=oChange[attr];
-				var begin=oBegin[attr];
-				
-				var val=fnEffect(times,begin,change,duration);
-				animate.setCss(ele,attr,val);
-			}
-		}else{
-			for(var attr in oChange){
-				animate.setCss(ele,attr,obj[attr]);
-			}
-			clearInterval(ele.timer);
-			ele.timer=null;
-			if(typeof callback=="function"){
-				callback.call(ele);
-				//selfRun.call(this,"selfanimateover")//有了此句就可以用自定义事件的方法来调用，就不用回调方法了
-			}	
-		}
-	}
-	ele.timer=window.setInterval(step,interval);
-}
-animate.getCss=function(ele,attr){
-	if(window.getComputedStyle){
-		return parseFloat(getComputedStyle(ele,null)[attr]);
-	}else{
-		if(attr=="opacity"){
-			var value=ele.currentStyle.filter;
-			//alpha(opcity=66)	
-			value=value.replace(/ +/g,"");
-			var reg=/alpha\(opacity=(\d+(\.\d+)?)\)/;
-			if(reg.test(value)){
-				return RegExp.$1/100;	
-			}else{
-				return 1;
-			}	
-		}
-		return parseFloat(ele.currentStyle[attr]);	
-	}
-};
+ * animate:珠峰培训TWEEN算法动画库,采用惰性思想进行封装,包含了很多的、常用的、高级的运动方式
+ * @parameter
+ *   curEle:[object]我们当前要操作的元素,让这个元素有运动的效果
+ *   options:[object]我们目标位置的样式值
+ *   duration:[number]当前动画运动的总时间
+ *   effect:[number/array]当期动画运动的方式(选)->默认运动是匀速运动
+ *   callback:[function]当前动画运动完成做的事情(选)
+ * by Team on 2015/12/23
+ */
+var animate = (function () {
 
-animate.setCss=function(ele,attr,value){
-	if(attr=="opacity"){
-		ele.style.opacity=value;
-		ele.style.filter="alpha(opacity="+value*100+")";	
-	}else{
-		ele.style[attr]=value+"px";
-	}
-};
+    //getCss:获取当前元素的指定样式值
+    var getCss = function (curEle, attr) {
+        var val, reg;
+        if ("getComputedStyle" in window) {
+            val = window.getComputedStyle(curEle, null)[attr];
+        } else {
+            if (attr === "opacity") {
+                var temp = curEle.currentStyle["filter"];
+                reg = /^alpha\(opacity=((?:\d|(?:[1-9]\d+))(?:\.\d+)?)\)$/;
+                temp = reg.exec(temp);
+                val = temp ? temp[1] / 100 : 1;
+            } else {
+                val = curEle.currentStyle[attr];
+            }
+        }
+        reg = /^[+-]?(\d|([1-9]\d+))(\.\d+)?(px|pt|em|rem|vh|vw)$/;
+        return reg.test(val) ? parseFloat(val) : val;
+    };
+
+    //setCss:设置当前元素的指定的样式
+    var setCss = function (curEle, attr, value) {
+        var reg = /^(width|height|top|left|right|bottom|((margin|padding)(Left|Top|Right|Bottom)?))$/;
+        if (attr === "opacity") {
+            value = parseFloat(value);
+            value = value < 0 || value > 1 ? 1 + value : value;
+            curEle["style"]["opacity"] = value;
+            curEle["style"]["filter"] = "alpha(opacity=" + value * 100 + ")";
+        } else if (attr === "float") {
+            curEle["style"]["cssFloat"] = value;
+            curEle["style"]["styleFloat"] = value;
+        } else if (reg.test(attr)) {
+            curEle["style"][attr] = isNaN(value) ? value : value + "px";
+        } else {
+            curEle["style"][attr] = value;
+        }
+    };
+
+    //zhufengEffect:珠峰培训TWEEN算法公式
+    //t->times 已经运动的时间, b->begin 开始的位置, c->change 总运动距离(结尾的位置-开始的位置), d->duration 总运动时间
+    var zhufengEffect = {
+        //匀速
+        Linear: function (t, b, c, d) {
+            return c * t / d + b;
+        },
+        //指数衰减的反弹缓动
+        Bounce: {
+            easeIn: function (t, b, c, d) {
+                return c - zhufengEffect.Bounce.easeOut(d - t, 0, c, d) + b;
+            },
+            easeOut: function (t, b, c, d) {
+                if ((t /= d) < (1 / 2.75)) {
+                    return c * (7.5625 * t * t) + b;
+                } else if (t < (2 / 2.75)) {
+                    return c * (7.5625 * (t -= (1.5 / 2.75)) * t + .75) + b;
+                } else if (t < (2.5 / 2.75)) {
+                    return c * (7.5625 * (t -= (2.25 / 2.75)) * t + .9375) + b;
+                } else {
+                    return c * (7.5625 * (t -= (2.625 / 2.75)) * t + .984375) + b;
+                }
+            },
+            easeInOut: function (t, b, c, d) {
+                if (t < d / 2) {
+                    return zhufengEffect.Bounce.easeIn(t * 2, 0, c, d) * .5 + b;
+                }
+                return zhufengEffect.Bounce.easeOut(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
+            }
+        },
+        //二次方的缓动
+        Quad: {
+            easeIn: function (t, b, c, d) {
+                return c * (t /= d) * t + b;
+            },
+            easeOut: function (t, b, c, d) {
+                return -c * (t /= d) * (t - 2) + b;
+            },
+            easeInOut: function (t, b, c, d) {
+                if ((t /= d / 2) < 1) {
+                    return c / 2 * t * t + b;
+                }
+                return -c / 2 * ((--t) * (t - 2) - 1) + b;
+            }
+        },
+        //三次方的缓动
+        Cubic: {
+            easeIn: function (t, b, c, d) {
+                return c * (t /= d) * t * t + b;
+            },
+            easeOut: function (t, b, c, d) {
+                return c * ((t = t / d - 1) * t * t + 1) + b;
+            },
+            easeInOut: function (t, b, c, d) {
+                if ((t /= d / 2) < 1) {
+                    return c / 2 * t * t * t + b;
+                }
+                return c / 2 * ((t -= 2) * t * t + 2) + b;
+            }
+        },
+        //四次方的缓动
+        Quart: {
+            easeIn: function (t, b, c, d) {
+                return c * (t /= d) * t * t * t + b;
+            },
+            easeOut: function (t, b, c, d) {
+                return -c * ((t = t / d - 1) * t * t * t - 1) + b;
+            },
+            easeInOut: function (t, b, c, d) {
+                if ((t /= d / 2) < 1) {
+                    return c / 2 * t * t * t * t + b;
+                }
+                return -c / 2 * ((t -= 2) * t * t * t - 2) + b;
+            }
+        },
+        //五次方的缓动
+        Quint: {
+            easeIn: function (t, b, c, d) {
+                return c * (t /= d) * t * t * t * t + b;
+            },
+            easeOut: function (t, b, c, d) {
+                return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+            },
+            easeInOut: function (t, b, c, d) {
+                if ((t /= d / 2) < 1) {
+                    return c / 2 * t * t * t * t * t + b;
+                }
+                return c / 2 * ((t -= 2) * t * t * t * t + 2) + b;
+            }
+        },
+        //正弦曲线的缓动
+        Sine: {
+            easeIn: function (t, b, c, d) {
+                return -c * Math.cos(t / d * (Math.PI / 2)) + c + b;
+            },
+            easeOut: function (t, b, c, d) {
+                return c * Math.sin(t / d * (Math.PI / 2)) + b;
+            },
+            easeInOut: function (t, b, c, d) {
+                return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+            }
+        },
+        //指数曲线的缓动
+        Expo: {
+            easeIn: function (t, b, c, d) {
+                return (t == 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
+            },
+            easeOut: function (t, b, c, d) {
+                return (t == d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
+            },
+            easeInOut: function (t, b, c, d) {
+                if (t == 0) return b;
+                if (t == d) return b + c;
+                if ((t /= d / 2) < 1) return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
+                return c / 2 * (-Math.pow(2, -10 * --t) + 2) + b;
+            }
+        },
+        //圆形曲线的缓动
+        Circ: {
+            easeIn: function (t, b, c, d) {
+                return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
+            },
+            easeOut: function (t, b, c, d) {
+                return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
+            },
+            easeInOut: function (t, b, c, d) {
+                if ((t /= d / 2) < 1) {
+                    return -c / 2 * (Math.sqrt(1 - t * t) - 1) + b;
+                }
+                return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
+            }
+        },
+        //超过范围的三次方缓动
+        Back: {
+            easeIn: function (t, b, c, d, s) {
+                if (s == undefined) s = 1.70158;
+                return c * (t /= d) * t * ((s + 1) * t - s) + b;
+            },
+            easeOut: function (t, b, c, d, s) {
+                if (s == undefined) s = 1.70158;
+                return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
+            },
+            easeInOut: function (t, b, c, d, s) {
+                if (s == undefined) s = 1.70158;
+                if ((t /= d / 2) < 1) {
+                    return c / 2 * (t * t * (((s *= (1.525)) + 1) * t - s)) + b;
+                }
+                return c / 2 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2) + b;
+            }
+        },
+        //指数衰减的正弦曲线缓动
+        Elastic: {
+            easeIn: function (t, b, c, d, a, p) {
+                if (t == 0) return b;
+                if ((t /= d) == 1) return b + c;
+                if (!p) p = d * .3;
+                var s;
+                !a || a < Math.abs(c) ? (a = c, s = p / 4) : s = p / (2 * Math.PI) * Math.asin(c / a);
+                return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
+            },
+            easeOut: function (t, b, c, d, a, p) {
+                if (t == 0) return b;
+                if ((t /= d) == 1) return b + c;
+                if (!p) p = d * .3;
+                var s;
+                !a || a < Math.abs(c) ? (a = c, s = p / 4) : s = p / (2 * Math.PI) * Math.asin(c / a);
+                return (a * Math.pow(2, -10 * t) * Math.sin((t * d - s) * (2 * Math.PI) / p) + c + b);
+            },
+            easeInOut: function (t, b, c, d, a, p) {
+                if (t == 0) return b;
+                if ((t /= d / 2) == 2) return b + c;
+                if (!p) p = d * (.3 * 1.5);
+                var s;
+                !a || a < Math.abs(c) ? (a = c, s = p / 4) : s = p / (2 * Math.PI) * Math.asin(c / a);
+                if (t < 1) return -.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
+                return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p) * .5 + c + b;
+            }
+        }
+    };
+
+    //实现我们的animate动画库
+    return function (curEle, options, duration, effect, callback) {
+        //init effect
+        var fnEffect = zhufengEffect.Linear;//->默认是匀速的运动
+        if (typeof effect === "number") {
+            //1->Linear 2->Elastic-easeOut 3->Back-easeOut 4->Bounce-easeOut 5->Expo-easeIn
+            var ary = ["Linear", "Elastic-easeOut", "Back-easeOut", "Bounce-easeOut", "Expo-easeIn"];
+            for (var i = 0; i < ary.length; i++) {
+                if (effect === (i + 1)) {
+                    var curItem = ary[i].split("-");
+                    var curItemFir = curItem[0];
+                    var curItemTwo = curItem[1];
+                    fnEffect = curItem.length === 1 ? zhufengEffect[curItemFir] : zhufengEffect[curItemFir][curItemTwo];
+                    break;
+                }
+            }
+        } else if (effect instanceof Array) {
+            var effectFir = effect[0];
+            var effectTwo = effect[1];
+            fnEffect = effect.length === 1 ? zhufengEffect[effectFir] : zhufengEffect[effectFir][effectTwo];
+        } else if (typeof effect === "function") {
+            //我们的第四项的运动方式没有传递,第四个参数的值应该是我们第五个形参callback的值
+            callback = effect;
+        }
+
+        //init parameter
+        var times = 0,
+            interval = 15,
+            oBegin = {}, //当前元素的位置的对象
+            oChange = {};//当前方向的总距离=目标值减去起始值
+        for (var key in options) {
+            if (options.hasOwnProperty(key)) {
+                //key->当前要运动的方式的属性值,例如:"left"、"width"...
+                oBegin[key] = getCss(curEle, key);//->获取并且记录当前方向的起始位置的值
+                oChange[key] = options[key] - oBegin[key];//->用传递进来当前方向的目标中减去起始的值等于我们当前方向的总距离
+            }
+        }
+
+
+
+
+
+
+        //init
+        var move = function () {
+            window.clearTimeout(curEle.timer);
+            times += interval;//->每一次执行都记录一下当前已经运动的时间
+            if (times >= duration) {
+                //->已经到达目标位置:运动的时间已经超过总设定的时间
+                for (var key in options) {
+                    if (options.hasOwnProperty(key)) {
+                        setCss(curEle, key, options[key]);
+                    }
+                }
+                typeof callback === "function" ? callback.call(curEle) : null;
+                return;
+            }
+
+
+            for (var attr in oChange) {
+                if (oChange.hasOwnProperty(attr)) {
+                    //t->times 已经运动的时间, b->begin 开始的位置, c->change 总运动距离(结尾的位置-开始的位置), d->duration 总运动时间
+                    //var zhufengEffect = {
+                    //    //匀速
+                    //    Linear: function (t, b, c, d) {
+                    //        return c * t / d + b;
+                    //    },
+                    var curVal = fnEffect(times, oBegin[attr], oChange[attr], duration);
+                    setCss(curEle, attr, curVal);
+                }
+            }
+            curEle.timer = window.setTimeout(move, interval);
+        };
+        move();
+    }
+})();
